@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreFlow Video Ad Studio — MP4 Commercial Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #060913;
+      color: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+    }
+    .toolbar {
+      max-width: 980px;
+      width: 100%;
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .toolbar-title h1 {
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+    .toolbar-title p {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    button, .btn-link {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    button:hover, .btn-link:hover {
+      background: #334155;
+    }
+    button.active {
+      background: #4f46e5;
+      border-color: #6366f1;
+    }
+    button.export-btn {
+      background: #10b981;
+      border-color: #059669;
+      color: #052e16;
+      font-weight: 800;
+    }
+    button.export-btn:hover {
+      background: #34d399;
+    }
+    #status-text {
+      font-size: 0.85rem;
+      color: #38bdf8;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .stage-wrap {
+      background: #0b1120;
+      border: 2px solid #1e293b;
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      max-height: 76vh;
+      max-width: 90vw;
+      width: auto;
+      height: auto;
+      border-radius: 12px;
+      background: #080d1a;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <div class="toolbar-title">
+      <h1>StoreFlow Social Video Ad Studio</h1>
+      <p>18-Second 60fps Animated Commercial with Soundtrack (TikTok, WhatsApp Status, Reels &amp; Facebook)</p>
+    </div>
+    <div class="controls">
+      <button id="btn-square" class="active" onclick="setFormat('square')">Square (1080×1080)</button>
+      <button id="btn-story" onclick="setFormat('story')">Vertical Story (1080×1920)</button>
+      <button onclick="restartPreview()">↻ Replay Preview</button>
+      <button class="export-btn" id="btn-record" onclick="exportVideo()">⬇ Record &amp; Download MP4</button>
+      <a class="btn-link" href="flyers/storeflow-video-ad-square.mp4" download>Pre-Built Square MP4</a>
+      <a class="btn-link" href="flyers/storeflow-video-ad-story.mp4" download>Pre-Built Story MP4</a>
+    </div>
+  </div>
+
+  <div id="status-text">Ready — Playing Live Preview (18.0s Loop)</div>
+
+  <div class="stage-wrap">
+    <canvas id="adCanvas" width="1080" height="1080"></canvas>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('adCanvas');
+    const ctx = canvas.getContext('2d');
+    const statusText = document.getElementById('status-text');
+
+    let currentFormat = 'square'; // 'square' (1080x1080) or 'story' (1080x1920)
+    const DURATION = 18.0; // 18 seconds total commercial
+    let startTime = performance.now();
+    let isRecording = false;
+
+    // Load brand & mockup assets
+    const assets = {
+      logo: new Image(),
+      desktop: new Image(),
+      tablet: new Image(),
+      phone: new Image()
+    };
+    assets.logo.src = 'icon-192.png';
+    assets.desktop.src = 'images/mockup-pos-desktop.png';
+    assets.tablet.src = 'images/mockup-analytics-tablet.png';
+    assets.phone.src = 'images/mockup-mobile-phone.png';
+
+    function setFormat(fmt) {
+      if (isRecording) return;
+      currentFormat = fmt;
+      document.getElementById('btn-square').classList.toggle('active', fmt === 'square');
+      document.getElementById('btn-story').classList.toggle('active', fmt === 'story');
+      if (fmt === 'square') {
+        canvas.width = 1080;
+        canvas.height = 1080;
+      } else {
+        canvas.width = 1080;
+        canvas.height = 1920;
+      }
+      restartPreview();
+    }
+
+    function restartPreview() {
+      startTime = performance.now();
+    }
+
+    // Easing helpers
+    function clamp(v, min = 0, max = 1) { return Math.max(min, Math.min(max, v)); }
+    function easeOutCubic(x) { return 1 - Math.pow(1 - clamp(x), 3); }
+    function easeOutBack(x) {
+      x = clamp(x);
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+      return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+    }
+    function easeInOutQuad(x) {
+      x = clamp(x);
+      return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function drawBackground(t, W, H) {
+      // Deep dark navy gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
+      bgGrad.addColorStop(0, '#070b16');
+      bgGrad.addColorStop(0.5, '#0c1326');
+      bgGrad.addColorStop(1, '#070b16');
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, W, H);
+
+      // Animated ambient glow orbs
+      const orb1X = W * 0.5 + Math.sin(t * 0.8) * 140;
+      const orb1Y = H * 0.25 + Math.cos(t * 0.6) * 60;
+      const g1 = ctx.createRadialGradient(orb1X, orb1Y, 20, orb1X, orb1Y, 520);
+      g1.addColorStop(0, 'rgba(99, 102, 241, 0.32)');
+      g1.addColorStop(0.5, 'rgba(139, 92, 246, 0.12)');
+      g1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, W, H);
+
+      const orb2X = W * 0.75 + Math.cos(t * 0.7) * 100;
+      const orb2Y = H * 0.78 + Math.sin(t * 0.9) * 80;
+      const g2 = ctx.createRadialGradient(orb2X, orb2Y, 20, orb2X, orb2Y, 480);
+      g2.addColorStop(0, 'rgba(16, 185, 129, 0.22)');
+      g2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle tech grid lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.025)';
+      ctx.lineWidth = 1;
+      const step = 90;
+      const offset = (t * 25) % step;
+      for (let x = 0; x < W; x += step) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      for (let y = offset; y < H; y += step) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+    }
+
+    function drawTopBrandBar(t, W, H, isStory) {
+      const padX = 64;
+      const topY = isStory ? 85 : 48;
+
+      // Brand Logo & Name
+      if (assets.logo.complete && assets.logo.naturalWidth > 0) {
+        ctx.save();
+        roundRect(ctx, padX, topY, 56, 56, 14);
+        ctx.clip();
+        ctx.drawImage(assets.logo, padX, topY, 56, 56);
+        ctx.restore();
+      }
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 36px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('StoreFlow', padX + 72, topY + 41);
+      ctx.fillStyle = '#6366f1';
+      ctx.fillText('.', padX + 252, topY + 41);
+
+      // Right Pill Badge
+      const pillW = 310;
+      const pillH = 48;
+      const pillX = W - padX - pillW;
+      const pillY = topY + 4;
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.16)';
+      ctx.strokeStyle = 'rgba(52, 211, 153, 0.5)';
+      ctx.lineWidth = 2;
+      roundRect(ctx, pillX, pillY, pillW, pillH, 24);
+      ctx.fill();
+      ctx.stroke();
+
+      // Pulsing green dot
+      const pulse = 0.6 + 0.4 * Math.sin(t * 5);
+      ctx.fillStyle = `rgba(52, 211, 153, ${pulse})`;
+      ctx.beginPath();
+      ctx.arc(pillX + 26, pillY + 24, 7, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#34d399';
+      ctx.font = '800 17px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('100% OFFLINE POS', pillX + 44, pillY + 30);
+    }
+
+    function drawImageContain(img, cx, cy, maxW, maxH, scale = 1, alpha = 1) {
+      if (!img.complete || img.naturalWidth === 0) return;
+      const ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+      const w = img.naturalWidth * ratio * scale;
+      const h = img.naturalHeight * ratio * scale;
+      ctx.save();
+      ctx.globalAlpha = clamp(alpha);
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+      ctx.shadowBlur = 45;
+      ctx.shadowOffsetY = 20;
+      ctx.drawImage(img, cx - w / 2, cy - h / 2, w, h);
+      ctx.restore();
+    }
+
+    function drawFeatureBadge(x, y, w, h, title, subtitle, accentColor, progress) {
+      if (progress <= 0) return;
+      const p = easeOutBack(progress);
+      ctx.save();
+
+      // Measure text first so no text ever overflows its box
+      let titleFontSize = 22;
+      let subFontSize = 17;
+      ctx.font = `800 ${titleFontSize}px "Plus Jakarta Sans", sans-serif`;
+      let titleW = ctx.measureText(title).width;
+      ctx.font = `600 ${subFontSize}px "Plus Jakarta Sans", sans-serif`;
+      let subW = ctx.measureText(subtitle).width;
+
+      const isCentered = Math.abs(x - canvas.width / 2) < 20;
+      const maxAllowedW = isCentered ? (canvas.width - 80) : Math.max(w, 465);
+      const neededW = Math.max(titleW, subW) + 64;
+      w = Math.min(maxAllowedW, Math.max(w, neededW));
+
+      // If text is still wider than maxAllowedW - 56, scale font down slightly to fit cleanly
+      const innerMax = w - 54;
+      if (titleW > innerMax) {
+        titleFontSize = Math.max(15, Math.floor(titleFontSize * (innerMax / titleW)));
+      }
+      if (subW > innerMax) {
+        subFontSize = Math.max(13, Math.floor(subFontSize * (innerMax / subW)));
+      }
+
+      ctx.translate(x, y + (1 - p) * 40);
+      ctx.scale(p, p);
+      ctx.globalAlpha = clamp(progress * 1.5);
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.92)';
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 2.5;
+      ctx.shadowColor = 'rgba(0,0,0,0.55)';
+      ctx.shadowBlur = 25;
+      roundRect(ctx, -w / 2, -h / 2, w, h, 18);
+      ctx.fill();
+      ctx.stroke();
+
+      // Left accent bar
+      ctx.fillStyle = accentColor;
+      roundRect(ctx, -w / 2 + 14, -h / 2 + 16, 6, h - 32, 3);
+      ctx.fill();
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `800 ${titleFontSize}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillText(title, -w / 2 + 34, -4);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = `600 ${subFontSize}px "Plus Jakarta Sans", sans-serif`;
+      ctx.fillText(subtitle, -w / 2 + 34, 22);
+
+      ctx.restore();
+    }
+
+    function renderFrame(t) {
+      const W = canvas.width;
+      const H = canvas.height;
+      const isStory = H > 1200;
+
+      drawBackground(t, W, H);
+      drawTopBrandBar(t, W, H, isStory);
+
+      // SCENE 1: 0.0s - 4.2s (THE HOOK: INTERNET DROPS & LIGHTS OUT!)
+      if (t < 4.2) {
+        const enterP = easeOutCubic(t / 0.7);
+        const exitP = t > 3.6 ? clamp((4.2 - t) / 0.6) : 1;
+        const alpha = enterP * exitP;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        const centerY = isStory ? H * 0.44 : H * 0.45;
+
+        // Alert Tag
+        const tagW = 640;
+        const tagH = 54;
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.16)';
+        ctx.strokeStyle = 'rgba(248, 113, 113, 0.55)';
+        ctx.lineWidth = 2;
+        roundRect(ctx, W / 2 - tagW / 2, centerY - 210, tagW, tagH, 27);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#f87171';
+        ctx.font = '800 20px "Plus Jakarta Sans", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠️ NO INTERNET?  ⚡ LIGHTS OUT?  ZERO PANIC!', W / 2, centerY - 175);
+
+        // Main Hook Headline
+        const s1 = easeOutBack((t - 0.15) / 0.65);
+        ctx.save();
+        ctx.translate(W / 2, centerY - 60);
+        ctx.scale(s1, s1);
+        ctx.fillStyle = '#ffffff';
+        ctx.font = isStory ? '900 70px "Plus Jakarta Sans", sans-serif' : '900 62px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Internet Drops?', 0, -25);
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillText('Lights Cut Off? Just Smile.', 0, 55);
+        ctx.restore();
+
+        // Subhook
+        if (t > 0.7) {
+          const p2 = easeOutCubic((t - 0.7) / 0.6);
+          ctx.globalAlpha = alpha * p2;
+          ctx.fillStyle = '#cbd5e1';
+          ctx.font = '600 27px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText('While other shops rush for old paper notebooks...', W / 2, centerY + 135);
+          ctx.fillStyle = '#34d399';
+          ctx.font = '800 29px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText('You switch from PC to Android Phone & Stay Connected!', W / 2, centerY + 185);
+        }
+
+        ctx.restore();
+      }
+
+      // SCENE 2: 3.9s - 9.2s (DESKTOP COUNTER POS SHOWCASE)
+      if (t >= 3.9 && t < 9.2) {
+        const localT = t - 3.9;
+        const enterP = easeOutCubic(localT / 0.7);
+        const exitP = t > 8.6 ? clamp((9.2 - t) / 0.6) : 1;
+        const alpha = enterP * exitP;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        // Headline
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = isStory ? '900 56px "Plus Jakarta Sans", sans-serif' : '900 48px "Plus Jakarta Sans", sans-serif';
+        const titleY = isStory ? 235 : 145;
+        ctx.fillText('Lightning-Fast Counter Checkout', W / 2, titleY);
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '700 25px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Works 100% Offline on Windows 10 & 11 PCs', W / 2, titleY + 45);
+
+        // Laptop Mockup with smooth float zoom
+        const floatY = Math.sin(localT * 2.2) * 8;
+        const zoom = 0.94 + 0.08 * easeInOutQuad(localT / 4.5);
+        const mockupY = isStory ? H * 0.45 : H * 0.50;
+        const maxW = isStory ? 960 : 780;
+        const maxH = isStory ? 620 : 480;
+        drawImageContain(assets.desktop, W / 2, mockupY + floatY, maxW, maxH, zoom, alpha);
+
+        // Pop-in Feature Callout Badges
+        const badgeBaseY = isStory ? H * 0.74 : H * 0.84;
+        if (isStory) {
+          drawFeatureBadge(W / 2, badgeBaseY - 90, 840, 92, '⚡ 100% Offline SQLite Engine', 'Zero internet required • Instant barcode scanning', '#38bdf8', (localT - 0.8) / 0.5);
+          drawFeatureBadge(W / 2, badgeBaseY + 20, 840, 92, '📦 Carton & Loose Unit Conversions', 'Buy in wholesale boxes, sell in single pieces automatically', '#a78bfa', (localT - 1.5) / 0.5);
+          drawFeatureBadge(W / 2, badgeBaseY + 130, 840, 92, '🧾 Instant 58mm / 80mm Thermal Receipts', 'USB, Bluetooth & Network ESC/POS printers + Shift Z-Reports', '#34d399', (localT - 2.2) / 0.5);
+        } else {
+          drawFeatureBadge(295, badgeBaseY, 445, 88, '⚡ 100% Offline SQLite', 'No internet needed • Fast search', '#38bdf8', (localT - 0.8) / 0.5);
+          drawFeatureBadge(785, badgeBaseY, 445, 88, '📦 Carton-to-Unit Engine', 'Wholesale & retail auto-deduction', '#a78bfa', (localT - 1.4) / 0.5);
+          drawFeatureBadge(W / 2, badgeBaseY + 102, 700, 84, '🧾 58mm/80mm Thermal Receipts & Cash Balancing', 'Prevent till shortages with automated Shift Z-Reports', '#34d399', (localT - 2.0) / 0.5);
+        }
+
+        ctx.restore();
+      }
+
+      // SCENE 3: 8.9s - 14.0s (BLACKOUT BACKUP: ANDROID APK + CHECKPOINT SYNC)
+      if (t >= 8.9 && t < 14.0) {
+        const localT = t - 8.9;
+        const enterP = easeOutCubic(localT / 0.7);
+        const exitP = t > 13.4 ? clamp((14.0 - t) / 0.6) : 1;
+        const alpha = enterP * exitP;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        const titleY = isStory ? 235 : 145;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = isStory ? '900 52px "Plus Jakarta Sans", sans-serif' : '900 45px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Power Outage? Switch to Phone!', W / 2, titleY);
+
+        ctx.fillStyle = '#34d399';
+        ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Sell on Android During Blackouts • Sync to PC When Power Returns', W / 2, titleY + 45);
+
+        const centerY = isStory ? H * 0.46 : H * 0.50;
+        const slideOffset = (1 - easeOutBack(localT / 0.8)) * 180;
+
+        // Tablet on Left
+        drawImageContain(
+          assets.tablet,
+          W * 0.40 - slideOffset,
+          centerY,
+          isStory ? 680 : 580,
+          isStory ? 520 : 420,
+          1,
+          alpha
+        );
+
+        // Phone on Right
+        drawImageContain(
+          assets.phone,
+          W * 0.76 + slideOffset,
+          centerY + 25,
+          isStory ? 340 : 260,
+          isStory ? 560 : 450,
+          1,
+          alpha
+        );
+
+        // Feature Callouts
+        const badgeBaseY = isStory ? H * 0.76 : H * 0.85;
+        if (isStory) {
+          drawFeatureBadge(W / 2, badgeBaseY - 60, 860, 92, '🔋 PC Outage Checkpoint Sync', 'Toggle PC Backup on phone • Auto-merges sales when power is back', '#34d399', (localT - 0.8) / 0.5);
+          drawFeatureBadge(W / 2, badgeBaseY + 55, 860, 92, '📱 Phone Camera Barcode Gun & Live Analytics', 'Scan items with phone camera & track margins, debts & expiry', '#facc15', (localT - 1.5) / 0.5);
+        } else {
+          drawFeatureBadge(295, badgeBaseY + 20, 450, 90, '🔋 PC Outage Backup Sync', 'Sell on phone • Sync when power returns', '#34d399', (localT - 0.8) / 0.5);
+          drawFeatureBadge(785, badgeBaseY + 20, 450, 90, '📱 Camera Barcode & Profit', 'Phone scanner + live margin analytics', '#facc15', (localT - 1.4) / 0.5);
+        }
+
+        ctx.restore();
+      }
+
+      // SCENE 4: 13.7s - 18.0s (PRICING OFFER & CALL TO ACTION)
+      if (t >= 13.7) {
+        const localT = t - 13.7;
+        const enterP = easeOutBack(localT / 0.65);
+
+        ctx.save();
+        ctx.globalAlpha = clamp(localT / 0.4);
+
+        const topTitleY = isStory ? 240 : 150;
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = isStory ? '900 58px "Plus Jakarta Sans", sans-serif' : '900 50px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Own StoreFlow Forever', W / 2, topTitleY);
+
+        ctx.fillStyle = '#a5b4fc';
+        ctx.font = '700 26px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('One-Time Payment • Zero Monthly Subscriptions', W / 2, topTitleY + 46);
+
+        // Big Pricing Card
+        const cardW = isStory ? 900 : 880;
+        const cardH = isStory ? 540 : 370;
+        const cardX = W / 2 - cardW / 2;
+        const cardY = isStory ? 360 : 230;
+
+        ctx.save();
+        ctx.translate(W / 2, cardY + cardH / 2);
+        ctx.scale(enterP, enterP);
+        ctx.translate(-W / 2, -(cardY + cardH / 2));
+
+        const cardGrad = ctx.createLinearGradient(cardX, cardY, cardX + cardW, cardY + cardH);
+        cardGrad.addColorStop(0, 'rgba(30, 41, 59, 0.96)');
+        cardGrad.addColorStop(1, 'rgba(15, 23, 42, 0.98)');
+        ctx.fillStyle = cardGrad;
+        ctx.strokeStyle = '#6366f1';
+        ctx.lineWidth = 3;
+        ctx.shadowColor = 'rgba(99, 102, 241, 0.35)';
+        ctx.shadowBlur = 45;
+        roundRect(ctx, cardX, cardY, cardW, cardH, 28);
+        ctx.fill();
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // Lifetime License Tag
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('LIFETIME STORE LICENSE (WINDOWS + ANDROID APK)', W / 2, cardY + (isStory ? 75 : 58));
+
+        // Giant Price
+        ctx.fillStyle = '#34d399';
+        ctx.font = isStory ? '900 105px "JetBrains Mono", monospace' : '900 86px "JetBrains Mono", monospace';
+        ctx.fillText('GH₵ 2,500', W / 2, cardY + (isStory ? 195 : 155));
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '700 23px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('✓ Free 14-Day Trial   •   ✓ Free Excel Stock Import   •   ✓ 2-Hr Auto Backups', W / 2, cardY + (isStory ? 265 : 210));
+
+        // Instant Payment CTA Pill inside card
+        const btnW = isStory ? 740 : 680;
+        const btnH = isStory ? 84 : 70;
+        const pulseScale = 1 + 0.025 * Math.sin(t * 6);
+        ctx.save();
+        ctx.translate(W / 2, cardY + (isStory ? 380 : 292));
+        ctx.scale(pulseScale, pulseScale);
+        ctx.fillStyle = '#00c3f7';
+        roundRect(ctx, -btnW / 2, -btnH / 2, btnW, btnH, 20);
+        ctx.fill();
+        ctx.fillStyle = '#081325';
+        ctx.font = isStory ? '900 29px "Plus Jakarta Sans", sans-serif' : '900 25px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Pay Instantly via MTN MoMo / Telecel / Card', 0, 10);
+        ctx.restore();
+
+        if (isStory) {
+          ctx.fillStyle = '#94a3b8';
+          ctx.font = '600 21px "Plus Jakarta Sans", sans-serif';
+          ctx.fillText('Instant License Delivery via Paystack Checkout', W / 2, cardY + 485);
+        }
+
+        ctx.restore();
+
+        // Bottom Contact Cards
+        const contactY = isStory ? 1020 : 650;
+        drawFeatureBadge(W / 2, contactY, isStory ? 900 : 880, isStory ? 105 : 88, '💬 Telegram: @frivans   |   📞 Call / SMS: 024 834 3007', '📧 Email: www.frivans@gmail.com', '#38bdf8', (localT - 0.3) / 0.5);
+
+        drawFeatureBadge(W / 2, contactY + (isStory ? 135 : 108), isStory ? 900 : 880, isStory ? 105 : 88, '🌐 Download Free Trial: frivans.github.io/storeflow', 'Install on your PC or Android phone in 60 seconds!', '#34d399', (localT - 0.6) / 0.5);
+
+        if (isStory) {
+          drawImageContain(assets.desktop, W / 2, 1540, 760, 420, 1, clamp((localT - 0.5) / 0.6));
+        } else {
+          // Bottom progress bar
+          ctx.fillStyle = '#facc15';
+          ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('👉 Visit frivans.github.io/storeflow to Download & Try Free Today!', W / 2, 965);
+        }
+
+        ctx.restore();
+      }
+
+      // Bottom subtle timeline progress bar
+      const barProgress = clamp((t % DURATION) / DURATION);
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(0, H - 8, W, 8);
+      ctx.fillStyle = '#6366f1';
+      ctx.fillRect(0, H - 8, W * barProgress, 8);
+    }
+
+    // Animation loop
+    function tick(now) {
+      if (!isRecording) {
+        const elapsed = ((now - startTime) / 1000) % DURATION;
+        renderFrame(elapsed);
+      }
+      requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    // Synthesize upbeat corporate tech soundtrack using Web Audio API
+    function createSoundtrack(audioCtx, dest) {
+      const now = audioCtx.currentTime;
+      const master = audioCtx.createGain();
+      master.gain.setValueAtTime(0.28, now);
+      master.gain.setValueAtTime(0.28, now + DURATION - 1.5);
+      master.gain.linearRampToValueAtTime(0.001, now + DURATION);
+      master.connect(dest);
+
+      // Warm bass progression (C - G - Am - F)
+      const bassFreqs = [130.81, 98.00, 110.00, 87.31];
+      for (let bar = 0; bar < 9; bar++) {
+        const freq = bassFreqs[bar % bassFreqs.length];
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + bar * 2);
+        g.gain.setValueAtTime(0.001, now + bar * 2);
+        g.gain.linearRampToValueAtTime(0.35, now + bar * 2 + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.05, now + bar * 2 + 1.9);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now + bar * 2);
+        osc.stop(now + bar * 2 + 1.95);
+      }
+
+      // Pluck arpeggio notes (120 BPM = 0.25s per 8th note)
+      const arpNotes = [523.25, 659.25, 783.99, 1046.50, 783.99, 659.25, 587.33, 783.99];
+      const totalSteps = Math.floor(DURATION / 0.25);
+      for (let i = 0; i < totalSteps; i++) {
+        const stepTime = now + i * 0.25;
+        const note = arpNotes[i % arpNotes.length];
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(note, stepTime);
+        g.gain.setValueAtTime(0.001, stepTime);
+        g.gain.linearRampToValueAtTime(0.18, stepTime + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, stepTime + 0.22);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(stepTime);
+        osc.stop(stepTime + 0.23);
+      }
+
+      // Scene transition chime swells at 0s, 4s, 9s, 13.8s
+      [0.05, 4.0, 9.0, 13.8].forEach(chimeT => {
+        [523.25, 659.25, 783.99, 1046.5].forEach((f, idx) => {
+          const osc = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, now + chimeT + idx * 0.06);
+          g.gain.setValueAtTime(0.001, now + chimeT + idx * 0.06);
+          g.gain.linearRampToValueAtTime(0.22, now + chimeT + idx * 0.06 + 0.04);
+          g.gain.exponentialRampToValueAtTime(0.001, now + chimeT + idx * 0.06 + 0.9);
+          osc.connect(g);
+          g.connect(master);
+          osc.start(now + chimeT + idx * 0.06);
+          osc.stop(now + chimeT + idx * 0.06 + 0.95);
+        });
+      });
+    }
+
+    async function exportVideo(autoUploadPort = null) {
+      if (isRecording) return;
+      isRecording = true;
+      const btn = document.getElementById('btn-record');
+      btn.disabled = true;
+      btn.textContent = 'Recording 18s Video...';
+
+      const stream = canvas.captureStream(60);
+
+      // Attach synthesized WebAudio track if supported
+      let audioCtx = null;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        const dest = audioCtx.createMediaStreamDestination();
+        createSoundtrack(audioCtx, dest);
+        const audioTrack = dest.stream.getAudioTracks()[0];
+        if (audioTrack) stream.addTrack(audioTrack);
+      } catch (e) {
+        console.warn('Audio synth skipped:', e);
+      }
+
+      const mimeCandidates = [
+        'video/mp4;codecs=avc1,mp4a.40.2',
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm'
+      ];
+      let selectedMime = 'video/webm';
+      for (const m of mimeCandidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) {
+          selectedMime = m;
+          break;
+        }
+      }
+
+      const chunks = [];
+      const recorder = new MediaRecorder(stream, {
+        mimeType: selectedMime,
+        videoBitsPerSecond: 8000000
+      });
+
+      recorder.ondataavailable = e => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      const donePromise = new Promise(resolve => {
+        recorder.onstop = async () => {
+          if (audioCtx) audioCtx.close();
+          const blob = new Blob(chunks, { type: selectedMime });
+          const ext = selectedMime.includes('mp4') ? 'mp4' : 'webm';
+          const filename = `storeflow-video-ad-${currentFormat}.${ext}`;
+
+          if (autoUploadPort) {
+            statusText.textContent = 'Uploading rendered video to disk...';
+            await fetch(`http://127.0.0.1:${autoUploadPort}/save?name=${encodeURIComponent(filename)}`, {
+              method: 'POST',
+              body: blob
+            });
+            statusText.textContent = 'Saved: ' + filename;
+            window.__EXPORT_DONE = true;
+          } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            statusText.textContent = `Downloaded ${filename} (${(blob.size / 1024 / 1024).toFixed(2)} MB)`;
+          }
+
+          isRecording = false;
+          btn.disabled = false;
+          btn.textContent = '⬇ Record & Download MP4';
+          startTime = performance.now();
+          resolve();
+        };
+      });
+
+      recorder.start(200);
+      const recStart = performance.now();
+
+      await new Promise(resolve => {
+        const timerId = setInterval(() => {
+          const now = performance.now();
+          const elapsed = (now - recStart) / 1000;
+          if (elapsed >= DURATION) {
+            clearInterval(timerId);
+            renderFrame(DURATION - 0.01);
+            resolve();
+            return;
+          }
+          statusText.textContent = `Recording ${currentFormat.toUpperCase()} Video Ad... ${elapsed.toFixed(1)}s / ${DURATION.toFixed(1)}s`;
+          renderFrame(elapsed);
+        }, 1000 / 60);
+      });
+
+      recorder.stop();
+      await donePromise;
+    }
+
+    // Support automated headless Chrome export via URL query params: ?autoexport=square&port=9988
+    window.addEventListener('load', () => {
+      const params = new URLSearchParams(window.location.search);
+      const autoFmt = params.get('autoexport');
+      const port = params.get('port');
+      if (autoFmt && port) {
+        setFormat(autoFmt);
+        setTimeout(() => {
+          exportVideo(port);
+        }, 800);
+      }
+    });
+  </script>
+</body>
+</html>

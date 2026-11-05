@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreFlow POS — Offline Point of Sale & Inventory Software</title>
+  <meta name="description" content="Fast, 100% offline Point of Sale & Inventory software for retail, supermarkets, kiosks, and pharmacies. Available for Windows PC and Android phones.">
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #151d30;
+      --card-border: #222f49;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #10b981;
+      --telegram: #0088cc;
+      --telegram-hover: #0077b5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header Nav */
+    header {
+      padding: 1.25rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky;
+      top: 0;
+      background: rgba(11, 15, 25, 0.88);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+    }
+    .nav-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      text-decoration: none;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); }
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .btn-nav {
+      background: var(--primary);
+      color: #fff !important;
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.85rem !important;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 4.5rem 0 3.5rem;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(99,102,241,0.18) 0%, rgba(11,15,25,0) 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(99,102,241,0.12);
+      border: 1px solid rgba(99,102,241,0.3);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      margin-bottom: 1.5rem;
+    }
+    .badge-pill i { color: var(--success); }
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .hero h1 .gradient-text {
+      background: linear-gradient(135deg, #a5b4fc 0%, #6366f1 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 2.5rem;
+    }
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.6rem;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 10px 25px -5px rgba(99,102,241,0.4);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+    }
+    .btn-android {
+      background: #1e293b;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+    }
+    .btn-android:hover {
+      background: #334155;
+      transform: translateY(-2px);
+    }
+    .btn-companion {
+      background: #047857 !important;
+      color: #ffffff !important;
+      border: 1px solid #34d399 !important;
+      box-shadow: 0 4px 15px -3px rgba(16, 185, 129, 0.45);
+    }
+    .btn-companion:hover {
+      background: #059669 !important;
+      border-color: #6ee7b7 !important;
+      color: #ffffff !important;
+      transform: translateY(-2px);
+    }
+    .btn-telegram {
+      background: var(--telegram);
+      color: #fff;
+      box-shadow: 0 10px 25px -5px rgba(0,136,204,0.35);
+    }
+    .btn-telegram:hover {
+      background: var(--telegram-hover);
+      transform: translateY(-2px);
+    }
+
+    /* Features Grid */
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .section-title h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .section-title p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+    .feature-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 1.8rem;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(99,102,241,0.5);
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(99,102,241,0.12);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+    .feature-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Dual Platform Showcase */
+    .platform-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #151d30 100%);
+      border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      margin-bottom: 5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .platform-info { max-width: 580px; }
+    .platform-info h2 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; }
+    .platform-info p { color: #cbd5e1; font-size: 1rem; margin-bottom: 1.5rem; }
+    .platform-badges {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .platform-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .platform-badge i { font-size: 1.4rem; color: #a5b4fc; }
+
+    /* Pricing Section */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 5rem;
+    }
+    .pricing-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 2.2rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .pricing-card.featured {
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 35px -5px rgba(99,102,241,0.25);
+    }
+    .popular-tag {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .pricing-card h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .pricing-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.5rem; }
+    .price { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: baseline; gap: 0.4rem; }
+    .price span { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+    .feature-list { list-style: none; margin-bottom: 2rem; flex-grow: 1; }
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin-bottom: 0.75rem;
+    }
+    .feature-list li i { color: var(--success); font-size: 0.85rem; }
+
+    /* FAQ */
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 5rem;
+    }
+    .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .faq-item h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .faq-item p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Floating Telegram Pill */
+    .floating-telegram {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: var(--telegram);
+      color: #fff;
+      padding: 0.85rem 1.4rem;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      box-shadow: 0 10px 25px -5px rgba(0,136,204,0.5);
+      z-index: 999;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .floating-telegram:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 30px -5px rgba(0,136,204,0.7);
+    }
+    .floating-telegram i { font-size: 1.25rem; }
+
+    /* Product Showcase & Mockups */
+    .hero-mockup-container {
+      margin-top: 3.5rem;
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .hero-mockup-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(99,102,241,0.22) 0%, rgba(139,92,246,0) 70%);
+      filter: blur(55px);
+      z-index: 0;
+      pointer-events: none;
+    }
+    .hero-mockup-img {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      width: 100%;
+      height: auto;
+      filter: drop-shadow(0 25px 45px rgba(0,0,0,0.65));
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+    }
+    .hero-mockup-img:hover {
+      transform: translateY(-4px);
+    }
+
+    /* Dual Showcase Section */
+    .showcase-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+      margin: 5rem 0;
+    }
+    .showcase-text h3 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.25;
+    }
+    .showcase-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .showcase-feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .showcase-feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+    .showcase-feature-list li i {
+      color: var(--success);
+      font-size: 1rem;
+    }
+    .showcase-img-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+    }
+    .showcase-img {
+      width: 100%;
+      max-width: 530px;
+      height: auto;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.55));
+      border-radius: 12px;
+      transition: transform 0.3s ease;
+    }
+    .showcase-img.phone {
+      max-width: 290px;
+    }
+    .showcase-img:hover {
+      transform: scale(1.02);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 3rem 0;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+
+    @media (max-width: 992px) {
+      .container { padding: 0 1.25rem; }
+      .hero h1 { font-size: 2.6rem; }
+      .showcase-row { gap: 2.5rem; margin: 4rem 0; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 460px; margin-left: auto; margin-right: auto; }
+      .platform-banner { flex-direction: column; align-items: flex-start; padding: 2.2rem 1.75rem; }
+    }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero { padding: 3rem 0 2rem; }
+      .hero h1 { font-size: 2.1rem; line-height: 1.2; }
+      .hero p { font-size: 1rem; margin-bottom: 1.75rem; }
+      .hero-actions { flex-direction: column; width: 100%; max-width: 360px; margin: 0 auto; gap: 0.75rem; }
+      .btn { width: 100%; justify-content: center; font-size: 0.9rem; padding: 0.8rem 1.2rem; }
+      .hero-mockup-container { margin-top: 2rem; }
+      .features-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .feature-card { padding: 1.4rem; }
+      .faq-grid { grid-template-columns: 1fr; }
+      .showcase-row {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        margin: 2.75rem 0;
+      }
+      .showcase-row.reverse .showcase-img-wrapper {
+        order: -1;
+      }
+      .showcase-text h3 { font-size: 1.5rem; }
+      .platform-badges { flex-direction: column; gap: 0.85rem; }
+      .floating-telegram { bottom: 16px; right: 16px; padding: 0.7rem 1.15rem; font-size: 0.85rem; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 1.85rem; }
+      .badge-pill { font-size: 0.74rem; padding: 0.3rem 0.75rem; }
+      .price { font-size: 2.1rem; }
+      .pricing-card { padding: 1.6rem 1.25rem; }
+      .showcase-img.phone { max-width: 220px; }
+      .floating-telegram span { display: none; }
+      .floating-telegram { padding: 0.85rem; border-radius: 50%; width: 48px; height: 48px; justify-content: center; }
+      .floating-telegram i { margin: 0; font-size: 1.4rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrapper">
+      <a href="#" class="brand">
+        <img src="icon-192.png" alt="StoreFlow Logo" style="width:34px; height:34px; border-radius:8px; object-fit:contain; box-shadow:0 2px 8px rgba(0,0,0,0.3);">
+        StoreFlow<span>.</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#downloads">Downloads</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://t.me/frivans" target="_blank" class="btn btn-telegram btn-nav">
+          <i class="fa-brands fa-telegram"></i> Chat on Telegram
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero container">
+    <div class="badge-pill">
+      <i class="fa-solid fa-circle-check"></i>
+      StoreFlow Release v1.0.0 • 100% Offline Standalone
+    </div>
+    <h1>
+      The Smart Point of Sale Built for <span class="gradient-text">Real Retail Business</span>
+    </h1>
+    <p>
+      Never get locked out by internet blackouts or monthly subscription traps. StoreFlow runs lightning-fast, offline on your Windows counter PCs and mobile phones.
+    </p>
+    <div class="hero-actions" id="downloads">
+      <a href="downloads/StoreFlow_Setup.exe" download="StoreFlow_Setup.exe" class="btn btn-primary">
+        <i class="fa-brands fa-windows"></i> Windows Counter PC (.exe)
+      </a>
+      <a href="downloads/StoreFlow_Standalone.apk" download="StoreFlow_Standalone.apk" class="btn btn-android" title="100% Standalone Offline POS for Android phones & tablets">
+        <i class="fa-brands fa-android"></i> Mobile Standalone (.apk)
+      </a>
+      <a href="downloads/StoreFlow_Companion.apk" download="StoreFlow_Companion.apk" class="btn btn-companion" title="Free Wi-Fi companion scanner & secondary terminal for PC register">
+        <i class="fa-solid fa-wifi"></i> Free PC Companion (.apk)
+      </a>
+      <a href="https://paystack.com/buy/storeflow-pos-lifetime-license-windows--android-ktjgrb" target="_blank" class="btn btn-primary" style="background:#00c3f7; color:#081325; font-weight:800; box-shadow:0 10px 25px -5px rgba(0,195,247,0.4);">
+        <i class="fa-solid fa-shield-halved"></i> Buy License (GH₵ 2,500)
+      </a>
+    </div>
+
+    <!-- Hero Desktop Mockup Showcase -->
+    <div class="hero-mockup-container">
+      <div class="hero-mockup-glow"></div>
+      <img src="images/mockup-pos-desktop.png" alt="StoreFlow Desktop Point of Sale Interface" class="hero-mockup-img">
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="container" id="features">
+    <div class="section-title">
+      <h2>Engineered for Retail, Wholesale & Kiosks</h2>
+      <p>Everything you need to sell, track profits, and manage stock with zero headaches.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+        <h3>100% Standalone &amp; Offline</h3>
+        <p>No internet connection required. Runs locally on your device with high-speed SQLite and instant search across thousands of products.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-barcode"></i></div>
+        <h3>High-Speed Barcode Checkout</h3>
+        <p>Ring up products in milliseconds using standard USB barcode scanners or your mobile phone's built-in camera.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-boxes-packing"></i></div>
+        <h3>Carton &amp; Unit Conversions</h3>
+        <p>Buy in cartons or sacks and sell in loose pieces or bottles. StoreFlow handles real-time unit deduction and wholesale margins automatically.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+        <h3>Supplier Credit &amp; Debt Aging</h3>
+        <p>Track exactly who owes your shop and which factories or suppliers you owe. Prevent cash leakage with clear ledger statements.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-cash-register"></i></div>
+        <h3>Daily Shift &amp; Cash Balancing</h3>
+        <p>Prevent till shortages. Automated morning float tracking, end-of-shift Z-reports, and expected vs. counted cash variance auditing.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-print"></i></div>
+        <h3>Thermal Receipts &amp; Digital Slips</h3>
+        <p>Print on 58mm / 80mm ESC/POS thermal printers via USB, Bluetooth, or Network. Send paperless receipts directly to customer SMS or Bluetooth.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive Showcase 1: Analytics & Temporal Traffic -->
+  <section class="container">
+    <div class="showcase-row">
+      <div class="showcase-text">
+        <div class="badge-pill" style="margin-bottom:1.25rem; width:fit-content;">
+          <i class="fa-solid fa-chart-line"></i> Real-Time Business Intelligence
+        </div>
+        <h3>Know Your Numbers.<br><span class="gradient-text">Protect Your Profits.</span></h3>
+        <p>
+          StoreFlow doesn't just record sales — it shows when rush hours occur, which products generate the highest gross margins, and how much money is sitting in unpaid customer credit.
+        </p>
+        <ul class="showcase-feature-list">
+          <li><i class="fa-solid fa-circle-check"></i> Hourly customer traffic patterns &amp; peak staffing alerts</li>
+          <li><i class="fa-solid fa-circle-check"></i> Revenue vs. Gross Profit velocity tracking</li>
+          <li><i class="fa-solid fa-circle-check"></i> Instant tender breakdown: Cash, Mobile Money, and Debt</li>
+          <li><i class="fa-solid fa-circle-check"></i> Dead stock warnings &amp; expiring batch auditing</li>
+        </ul>
+      </div>
+      <div class="showcase-img-wrapper">
+        <img src="images/mockup-analytics-tablet.png" alt="StoreFlow Analytics and Reports on Tablet" class="showcase-img">
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Dive Showcase 2: Mobile APK & Phone Scanner Gun -->
+  <section class="container">
+    <div class="showcase-row reverse">
+      <div class="showcase-img-wrapper">
+        <img src="images/mockup-mobile-phone.png" alt="StoreFlow Mobile Point of Sale APK" class="showcase-img phone">
+      </div>
+      <div class="showcase-text">
+        <div class="badge-pill" style="margin-bottom:1.25rem; width:fit-content;">
+          <i class="fa-solid fa-mobile-screen"></i> Android Standalone APK
+        </div>
+        <h3>Run Your Entire Store<br><span class="gradient-text">Right from Your Phone</span></h3>
+        <p>
+          No computer? No problem. Install the native StoreFlow Android APK on your phone or tablet. Ring up customers on the shop floor, check warehouse stock, and print wireless receipts.
+        </p>
+        <ul class="showcase-feature-list">
+          <li><i class="fa-solid fa-circle-check"></i> Built-in Phone Gun camera barcode scanner</li>
+          <li><i class="fa-solid fa-circle-check"></i> Connects directly to ESC/POS Bluetooth receipt printers</li>
+          <li><i class="fa-solid fa-circle-check"></i> 100% offline database stored securely on device</li>
+          <li><i class="fa-solid fa-circle-check"></i> Works standalone or synchronizes with PC counter registers</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Multi-Device Banner -->
+  <section class="container">
+    <div class="platform-banner">
+      <div class="platform-info">
+        <h2>Run Across All Your Shop Devices</h2>
+        <p>
+          Store owner on a laptop, sales attendants on Android phones, and cashiers on counter PCs. Connect them together through your shop's Wi-Fi router or phone hotspot with zero cables.
+        </p>
+        <div class="platform-badges">
+          <div class="platform-badge"><i class="fa-brands fa-windows"></i> Windows 10 &amp; 11</div>
+          <div class="platform-badge"><i class="fa-brands fa-android"></i> Android 8.0 to 15+</div>
+          <div class="platform-badge"><i class="fa-solid fa-wifi"></i> Hotspot &amp; Local LAN</div>
+        </div>
+      </div>
+      <div>
+        <a href="https://t.me/frivans" target="_blank" class="btn btn-primary" style="background:#4f46e5;">
+          <i class="fa-solid fa-headset"></i> Request Setup Support
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Transparent Pricing -->
+  <section class="container" id="pricing">
+    <div class="section-title">
+      <h2>Simple, Honest Ownership</h2>
+      <p>No monthly subscription fees. You own your software and your database.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Free Trial -->
+      <div class="pricing-card">
+        <h3>14-Day Free Evaluation</h3>
+        <p class="pricing-desc">Test StoreFlow with your own products and real sales.</p>
+        <div class="price">GH₵0 <span>/ 14 days</span></div>
+        <ul class="feature-list">
+          <li><i class="fa-solid fa-check"></i> Complete access to all features</li>
+          <li><i class="fa-solid fa-check"></i> Unlimited products &amp; sales</li>
+          <li><i class="fa-solid fa-check"></i> Windows Installer &amp; Android APK</li>
+          <li><i class="fa-solid fa-check"></i> Automated local encrypted backups</li>
+        </ul>
+        <a href="#downloads" class="btn btn-android" style="text-align:center; justify-content:center;">
+          Download Free Trial
+        </a>
+      </div>
+
+      <!-- Lifetime Single Till -->
+      <div class="pricing-card featured">
+        <span class="popular-tag">Most Popular</span>
+        <h3>Lifetime Store License</h3>
+        <p class="pricing-desc">Permanent activation for your main shop counter.</p>
+        <div class="price">GH₵2,500 <span>/ Lifetime Device</span></div>
+        <ul class="feature-list">
+          <li><i class="fa-solid fa-check"></i> Permanent Ed25519 cryptographic key</li>
+          <li><i class="fa-solid fa-check"></i> 100% offline — never expires</li>
+          <li><i class="fa-solid fa-check"></i> Android Phone Companion APK included</li>
+          <li><i class="fa-solid fa-check"></i> Free stock Excel import assistance</li>
+          <li><i class="fa-solid fa-check"></i> Automated 2-hour encrypted backups</li>
+          <li><i class="fa-solid fa-check"></i> Thermal printer &amp; barcode gun support</li>
+          <li><i class="fa-solid fa-check"></i> Direct Telegram &amp; phone technical support</li>
+        </ul>
+        <a href="https://paystack.com/buy/storeflow-pos-lifetime-license-windows--android-ktjgrb" target="_blank" class="btn btn-primary" style="text-align:center; justify-content:center; background:#00c3f7; color:#081325; font-weight:800; font-size:1rem; box-shadow:0 10px 25px -5px rgba(0,195,247,0.35);">
+          <i class="fa-solid fa-lock"></i> Buy Now via MoMo / Card (GH₵ 2,500)
+        </a>
+      </div>
+
+      <!-- Multi-Terminal Setup -->
+      <div class="pricing-card">
+        <h3>Multi-Register Shop Setup</h3>
+        <p class="pricing-desc">For supermarkets, pharmacies &amp; wholesale stores.</p>
+        <div class="price">Custom <span>/ Multi-till</span></div>
+        <ul class="feature-list">
+          <li><i class="fa-solid fa-check"></i> Multiple cashier registers (REG-01, REG-02...)</li>
+          <li><i class="fa-solid fa-check"></i> Cashier phone attendant connectivity</li>
+          <li><i class="fa-solid fa-check"></i> Synchronized drawer shift balancing</li>
+          <li><i class="fa-solid fa-check"></i> On-site or remote installation assistance</li>
+        </ul>
+        <a href="https://t.me/frivans" target="_blank" class="btn btn-primary" style="text-align:center; justify-content:center;">
+          <i class="fa-brands fa-telegram"></i> Contact for Multi-Till
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container">
+    <div class="section-title">
+      <h2>Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>Do I need an internet connection to use StoreFlow?</h4>
+        <p>No! StoreFlow is 100% offline-first. All data is saved directly on your local computer or phone. You can make sales, print receipts, and balance shifts even with zero internet or network.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>Can I use my Android phone instead of a laptop?</h4>
+        <p>Yes. We provide a native standalone Android APK. You can use your phone camera to scan barcodes and connect via Bluetooth to portable receipt printers.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>What happens if my computer crashes or gets stolen?</h4>
+        <p>StoreFlow features automated backup encryption. Copies of your books are stored safely in your Documents folder, and can be backed up to a USB flash drive or your cloud drive with one click.</p>
+      </div>
+
+      <div class="faq-item">
+        <h4>How do I pay for the license key?</h4>
+        <p>You can click the Buy License button to pay securely via MTN Mobile Money, Telecel Cash, or Visa/Mastercard through Paystack. You will receive an instant payment receipt, and your license key and installation setup will be delivered immediately to your phone or Telegram (@frivans).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Telegram Action -->
+  <a href="https://t.me/frivans" target="_blank" class="floating-telegram" title="Chat on Telegram">
+    <i class="fa-brands fa-telegram"></i>
+    <span>Chat on Telegram (@frivans)</span>
+  </a>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p style="margin-bottom:0.4rem;"><strong>StoreFlow POS &amp; Inventory Systems</strong></p>
+      <p style="margin-bottom:0.4rem;">Developed by <strong>Frivans Technologies</strong> • Accra, Ghana</p>
+      <p>Telegram: <a href="https://t.me/frivans" target="_blank">@frivans</a> • Call / SMS: <a href="tel:+233248343007">+233 24 834 3007</a> • Email: <a href="mailto:www.frivans@gmail.com">www.frivans@gmail.com</a></p>
+    </div>
+  </footer>
+
+</body>
+</html>

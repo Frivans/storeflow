@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>StoreFlow Social Media Ad - Square 1080x1080</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 1080px;
+      height: 1080px;
+      overflow: hidden;
+      background: #080d1a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #ffffff;
+      position: relative;
+    }
+
+    /* Radiant glow backgrounds */
+    .glow-top {
+      position: absolute;
+      top: -120px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 450px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.45) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 80%);
+      filter: blur(60px);
+      z-index: 1;
+    }
+    .glow-bottom {
+      position: absolute;
+      bottom: -150px;
+      right: -100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+      filter: blur(80px);
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      padding: 55px 65px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    .brand img {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    }
+    .brand span {
+      color: #6366f1;
+    }
+    .badge {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1.5px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      font-size: 17px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 10px 22px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Hero Text */
+    .hero-text {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .hero-text h1 {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -1px;
+    }
+    .hero-text h1 .highlight {
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-text p {
+      font-size: 22px;
+      color: #94a3b8;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    /* Visual Mockups Showcase */
+    .mockup-area {
+      position: relative;
+      height: 380px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+    }
+    .mockup-laptop {
+      max-width: 650px;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.7));
+      z-index: 2;
+    }
+    .mockup-phone {
+      position: absolute;
+      right: 90px;
+      bottom: -10px;
+      max-width: 175px;
+      filter: drop-shadow(0 25px 45px rgba(0,0,0,0.85));
+      z-index: 3;
+      transform: rotate(4deg);
+    }
+
+    /* Key Benefits Pills Grid */
+    .benefits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .benefit-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 14px 10px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+    }
+    .benefit-item i {
+      font-size: 24px;
+      color: #38bdf8;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .benefit-item span {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: block;
+      line-height: 1.25;
+    }
+
+    /* Footer / Pricing & CTA */
+    .cta-bar {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1.5px solid rgba(99, 102, 241, 0.4);
+      border-radius: 20px;
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    .price-tag {
+      display: flex;
+      flex-direction: column;
+    }
+    .price-tag .label {
+      font-size: 13px;
+      font-weight: 800;
+      color: #a5b4fc;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .price-tag .amount {
+      font-size: 38px;
+      font-weight: 900;
+      color: #34d399;
+      line-height: 1.1;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .price-tag .sub {
+      font-size: 13px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: right;
+    }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 700;
+      color: #e2e8f0;
+    }
+    .contact-item i {
+      font-size: 18px;
+      color: #38bdf8;
+      width: 20px;
+      text-align: center;
+    }
+    .contact-item.telegram { color: #38bdf8; }
+    .contact-item.phone { color: #facc15; }
+    .contact-item.web { color: #a78bfa; font-size: 15px; }
+  </style>
+</head>
+<body>
+  <div class="glow-top"></div>
+  <div class="glow-bottom"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="brand">
+        <img src="icon-192.png" alt="StoreFlow">
+        <div>StoreFlow<span>.</span></div>
+      </div>
+      <div class="badge">
+        <i class="fa-solid fa-wifi-slash"></i> 100% Offline Standalone
+      </div>
+    </div>
+
+    <!-- Hero Headlines -->
+    <div class="hero-text">
+      <h1>Tired of Monthly POS Fees &amp;<br><span class="highlight">Internet Blackouts?</span></h1>
+      <p>Own the ultimate Point of Sale &amp; Inventory system forever.</p>
+    </div>
+
+    <!-- Center Mockups -->
+    <div class="mockup-area">
+      <img src="images/mockup-pos-desktop.png" alt="Desktop POS" class="mockup-laptop">
+      <img src="images/mockup-mobile-phone.png" alt="Mobile POS" class="mockup-phone">
+    </div>
+
+    <!-- 4 Benefits Pills -->
+    <div class="benefits-grid">
+      <div class="benefit-item">
+        <i class="fa-solid fa-bolt"></i>
+        <span>Zero Monthly Fees<br><small style="color:#94a3b8; font-weight:400;">One-Time Payment</small></span>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-mobile-screen"></i>
+        <span>Android Phone APK<br><small style="color:#94a3b8; font-weight:400;">Camera Barcode Gun</small></span>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-print"></i>
+        <span>Thermal Receipts<br><small style="color:#94a3b8; font-weight:400;">58mm / 80mm ESC/POS</small></span>
+      </div>
+      <div class="benefit-item">
+        <i class="fa-solid fa-boxes-packing"></i>
+        <span>Carton &amp; Pieces<br><small style="color:#94a3b8; font-weight:400;">Auto Unit Deduction</small></span>
+      </div>
+    </div>
+
+    <!-- CTA & Contact Footer -->
+    <div class="cta-bar">
+      <div class="price-tag">
+        <span class="label">Lifetime Store License</span>
+        <span class="amount">GH₵ 2,500</span>
+        <span class="sub">Pay Once • Keep Forever • Desktop &amp; Phone APK</span>
+      </div>
+
+      <div class="contact-info">
+        <div class="contact-item telegram">
+          <span>Telegram: <strong>@frivans</strong></span>
+          <i class="fa-brands fa-telegram"></i>
+        </div>
+        <div class="contact-item phone">
+          <span>Call / SMS: <strong>024 834 3007</strong></span>
+          <i class="fa-solid fa-phone"></i>
+        </div>
+        <div class="contact-item web">
+          <span>frivans.github.io/storeflow</span>
+          <i class="fa-solid fa-globe"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

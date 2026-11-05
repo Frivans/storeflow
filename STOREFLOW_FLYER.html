@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StoreFlow POS & Inventory Manager — Product Flyer</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap');
+    
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .page-container {
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0.5rem !important;
+      }
+      .blank-display-zone {
+        border: none !important;
+        background: #ffffff !important;
+      }
+      .display-placeholder {
+        display: none !important;
+      }
+    }
+
+    .gradient-hero {
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #312e81 100%);
+    }
+
+    /* Device Mockup Shells */
+    .laptop-frame {
+      border: 9px solid #1e293b;
+      border-radius: 14px 14px 0 0;
+      background: #0f172a;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+    .laptop-base {
+      height: 14px;
+      background: #334155;
+      border-radius: 0 0 16px 16px;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+    .laptop-base::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: #475569;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .tablet-frame {
+      border: 8px solid #0f172a;
+      border-radius: 20px;
+      background: #0f172a;
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .phone-frame {
+      border: 7px solid #0f172a;
+      border-radius: 26px;
+      background: #090d16;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.55);
+      position: relative;
+      overflow: hidden;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 4px;
+      background: #0f172a;
+      border-radius: 3px;
+      z-index: 30;
+    }
+
+    .blank-display-zone {
+      position: relative;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      overflow: hidden;
+    }
+
+    .blank-display-zone:hover {
+      background-color: #f8fafc;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-3 md:p-6 flex flex-col items-center">
+
+  <!-- Print & Download Control Bar -->
+  <div class="no-print max-w-5xl w-full mb-5 flex flex-wrap justify-between items-center gap-3 bg-white p-3.5 rounded-xl shadow-sm border border-slate-200">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xl shadow-sm">
+        <i class="fa-solid fa-store"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-900 text-sm md:text-base leading-tight">StoreFlow Commercial Sales Flyer</h3>
+        <p class="text-xs text-slate-500">Official Marketing Flyer with Blank Screenshot Display Zones</p>
+      </div>
+    </div>
+    
+    <!-- Action Controls -->
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-slate-500 hidden sm:inline-block">
+        <i class="fa-solid fa-camera text-blue-600"></i> Click any screen to upload or paste (Ctrl+V)
+      </span>
+      <button onclick="clearAllScreenshots()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-lg transition" title="Clear all loaded screenshots back to blank">
+        <i class="fa-solid fa-trash-can"></i> Clear
+      </button>
+      <button onclick="window.print()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs md:text-sm rounded-lg shadow-sm flex items-center gap-2 transition">
+        <i class="fa-solid fa-print"></i> Print / Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- A4 Flyer Canvas -->
+  <div class="page-container max-w-5xl w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200">
+    
+    <!-- Hero Header -->
+    <header class="gradient-hero text-white p-6 md:p-10 relative overflow-hidden">
+      <div class="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-bold tracking-wide uppercase mb-3">
+            <i class="fa-solid fa-bolt text-amber-400"></i> Next-Gen Retail &amp; Wholesale POS
+          </div>
+          <h1 class="text-3xl md:text-5xl font-black tracking-tight leading-tight mb-2">
+            Store<span class="text-blue-400">Flow</span> Enterprise
+          </h1>
+          <p class="text-slate-300 text-sm md:text-base max-w-xl font-normal leading-relaxed">
+            The offline-first smart inventory and point-of-sale system built for retail stores, supermarkets, farm outlets, and wholesale distribution depots.
+          </p>
+        </div>
+
+        <!-- Hero Highlights Box -->
+        <div class="bg-white/10 border border-white/15 rounded-2xl p-4 md:p-5 backdrop-blur-md flex flex-col gap-3 min-w-[240px]">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-wifi-slash"></i>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-300 uppercase font-semibold">100% Offline-First</div>
+              <div class="text-xs font-bold text-white">Embedded SQLite &bull; No Internet Needed</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-300 uppercase font-semibold">One-Time License</div>
+              <div class="text-xs font-bold text-white">No Monthly or Cloud Subscription</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-mobile-screen-button"></i>
+            </div>
+            <div>
+              <div class="text-[11px] text-slate-300 uppercase font-semibold">Free Hardware</div>
+              <div class="text-xs font-bold text-white">Phone Cordless Barcode Gun</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- DEVICE TRIO SHOWCASE (Blank Display Zones Ready for Real Screenshots) -->
+    <section class="p-6 md:p-8 bg-slate-900 relative">
+      <div class="text-center mb-6">
+        <span class="text-blue-400 text-xs font-bold tracking-widest uppercase">Cross-Device Ecosystem</span>
+        <h2 class="text-xl md:text-3xl font-extrabold text-white mt-1">Run on Any Device. Synced in Real Time.</h2>
+        <p class="text-slate-400 text-xs md:text-sm max-w-2xl mx-auto mt-1.5">
+          From your central checkout counter to supervisor tablets and cordless smartphone barcode guns—running synchronously over local Wi-Fi.
+        </p>
+      </div>
+
+      <!-- 1. PRIMARY DESKTOP / LAPTOP MOCKUP (Blank Display Zone) -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div class="laptop-frame">
+          <!-- Laptop Window Bar -->
+          <div class="bg-slate-800 px-3 py-1.5 flex items-center justify-between border-b border-slate-700 text-slate-400 text-xs">
+            <div class="flex items-center gap-2">
+              <div class="flex gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-red-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+              </div>
+              <span class="font-mono text-[11px] text-slate-300 font-semibold ml-2 flex items-center gap-1.5">
+                <i class="fa-solid fa-desktop text-blue-400"></i> StoreFlow &bull; Desktop / Laptop Counter View
+              </span>
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono">16:10 High-Resolution Screen</div>
+          </div>
+
+          <!-- Blank Laptop Display Zone -->
+          <div id="desktop-zone" class="blank-display-zone w-full min-h-[380px] md:min-h-[440px] bg-white relative group" title="Click to upload screenshot, drag & drop, or paste (Ctrl+V)">
+            <input type="file" id="desktop-input" accept="image/*" class="hidden">
+            <img id="desktop-img" src="" alt="Desktop Screenshot" class="w-full h-full object-contain hidden z-10">
+            
+            <!-- Placeholder Guide -->
+            <div id="desktop-placeholder" class="display-placeholder text-center p-6 flex flex-col items-center justify-center">
+              <div class="w-16 h-16 rounded-2xl bg-blue-50 border-2 border-dashed border-blue-300 text-blue-600 flex items-center justify-center text-2xl mb-3 shadow-xs group-hover:scale-105 transition">
+                <i class="fa-solid fa-image"></i>
+              </div>
+              <h3 class="text-slate-800 font-bold text-sm md:text-base">Desktop Screenshot Zone</h3>
+              <p class="text-slate-500 text-xs max-w-sm mt-1">
+                Click here to upload your Products Catalog or POS screen, or drag &amp; drop an image, or paste with <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded font-mono text-[10px] text-slate-700">Ctrl + V</kbd>
+              </p>
+              <span class="mt-3 inline-flex items-center gap-1.5 text-[11px] text-blue-600 font-semibold bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i> Select Image File
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="laptop-base"></div>
+        <div class="text-center mt-2.5 text-xs text-slate-400 font-semibold flex items-center justify-center gap-2">
+          <i class="fa-solid fa-laptop text-blue-400"></i>
+          <span>Main Checkout Laptop &bull; Products Catalog &bull; Wholesale UOM Matrix &bull; Cash Register</span>
+        </div>
+      </div>
+
+      <!-- 2. TABLET & SMARTPHONE SIDE-BY-SIDE (Blank Display Zones) -->
+      <div class="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+        
+        <!-- TABLET MOCKUP (Blank Display Zone) -->
+        <div>
+          <div class="tablet-frame">
+            <!-- Tablet Top Bar -->
+            <div class="bg-slate-900 px-3 py-1.5 flex justify-between items-center text-[10px] text-slate-400 border-b border-slate-800">
+              <span class="font-bold flex items-center gap-1.5 text-blue-400">
+                <i class="fa-solid fa-tablet-screen-button"></i> Tablet View
+              </span>
+              <span class="text-slate-500 font-mono text-[9px]">Touch Terminal &bull; 4:3 Ratio</span>
+            </div>
+
+            <!-- Blank Tablet Display Zone -->
+            <div id="tablet-zone" class="blank-display-zone w-full min-h-[260px] md:min-h-[290px] bg-white relative group" title="Click to upload tablet screenshot, drag & drop, or paste">
+              <input type="file" id="tablet-input" accept="image/*" class="hidden">
+              <img id="tablet-img" src="" alt="Tablet Screenshot" class="w-full h-full object-contain hidden z-10">
+
+              <!-- Placeholder Guide -->
+              <div id="tablet-placeholder" class="display-placeholder text-center p-4 flex flex-col items-center justify-center">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 border-2 border-dashed border-amber-300 text-amber-600 flex items-center justify-center text-xl mb-2 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-tablet-screen-button"></i>
+                </div>
+                <h4 class="text-slate-800 font-bold text-xs md:text-sm">Tablet Screenshot Zone</h4>
+                <p class="text-slate-500 text-[11px] max-w-xs mt-1">
+                  Click to upload POS checkout or live dashboard screenshot
+                </p>
+                <span class="mt-2.5 inline-flex items-center gap-1 text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                  <i class="fa-solid fa-plus"></i> Select Tablet Image
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-2 text-xs text-slate-400 font-semibold flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-tablet-screen-button text-amber-400"></i> Floor Tablet / Supervisor &bull; Touch POS Checkout &bull; Live Stocktake
+          </div>
+        </div>
+
+        <!-- SMARTPHONE MOCKUP (Blank Display Zone) -->
+        <div class="flex flex-col items-center">
+          <div class="phone-frame w-56 md:w-64">
+            <div class="phone-notch"></div>
+            
+            <!-- Phone Top Status Bar -->
+            <div class="bg-slate-900 px-3 py-1.5 pt-3.5 flex justify-between items-center text-[9px] text-slate-400 border-b border-slate-800">
+              <span class="flex items-center gap-1 text-purple-400 font-bold">
+                <i class="fa-solid fa-mobile-screen-button"></i> Mobile Gun
+              </span>
+              <span class="font-mono text-slate-500 text-[8px]">9:19.5 Ratio</span>
+            </div>
+
+            <!-- Blank Mobile Display Zone -->
+            <div id="mobile-zone" class="blank-display-zone w-full min-h-[250px] md:min-h-[275px] bg-slate-950 relative group" title="Click to upload mobile screenshot, drag & drop, or paste">
+              <input type="file" id="mobile-input" accept="image/*" class="hidden">
+              <img id="mobile-img" src="" alt="Mobile Screenshot" class="w-full h-full object-contain hidden z-10">
+
+              <!-- Placeholder Guide -->
+              <div id="mobile-placeholder" class="display-placeholder text-center p-4 flex flex-col items-center justify-center text-white">
+                <div class="w-11 h-11 rounded-xl bg-purple-950 border-2 border-dashed border-purple-400/60 text-purple-300 flex items-center justify-center text-lg mb-2 group-hover:scale-105 transition">
+                  <i class="fa-solid fa-mobile-screen-button"></i>
+                </div>
+                <h4 class="text-slate-100 font-bold text-xs">Phone Screenshot Zone</h4>
+                <p class="text-slate-400 text-[10px] max-w-[180px] mt-1 leading-tight">
+                  Click or paste floor barcode scanner gun screenshot
+                </p>
+                <span class="mt-2.5 inline-flex items-center gap-1 text-[9px] text-purple-300 font-semibold bg-purple-900/60 px-2 py-0.5 rounded-full border border-purple-500/40">
+                  <i class="fa-solid fa-plus"></i> Select Mobile Image
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="text-center mt-2 text-xs text-slate-400 font-semibold flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-mobile-screen-button text-purple-400"></i> Smartphone View &bull; Floor Attendant Barcode Gun &bull; Instant Wi-Fi Sync
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CORE FEATURE MATRIX -->
+    <section class="p-6 md:p-10 bg-white">
+      <div class="text-center max-w-xl mx-auto mb-8">
+        <h3 class="text-2xl font-black text-slate-900">Engineered for High-Velocity Retail &amp; Wholesale</h3>
+        <p class="text-slate-500 text-xs md:text-sm mt-1">Built to handle the real-world operational challenges of busy storefronts and supply depots.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Feature 1 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-blue-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-boxes-packing"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">Multi-Tier Packaging (UOM)</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Sell by the piece, crate, or carton with automatic stock breakdown ($14 \text{ crates} \times 5 \text{ boxes} = 70 \text{ crates}$). Zero manual math errors at checkout.
+          </p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-purple-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-tags"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">Built-in Barcode Studio</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Generate and print compliant EAN-13, Code-128, and custom retail shelf tags directly on standard thermal sticker rolls or A4 label paper.
+          </p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-emerald-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">Zero-Profit Restock Returns</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Accountant-grade refunds. Restocked units restore FIFO valuation; damaged items route to verifiable loss ledgers without distorting sales margins.
+          </p>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-amber-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">FEFO Perishable Tracking</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            First-Expired, First-Out alerts for food, eggs, dairy, and pharmaceuticals. Avoid unsellable expired inventory before it reaches store shelves.
+          </p>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-indigo-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-calculator"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">Shift Audits &amp; Cash Float</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Record opening float, track cash vs. mobile money payouts in real time, and generate tamper-evident end-of-day cashier balancing receipts.
+          </p>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/50 hover:border-red-400 transition">
+          <div class="w-9 h-9 rounded-lg bg-red-100 text-red-700 flex items-center justify-center text-base mb-3 font-bold">
+            <i class="fa-solid fa-database"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 text-sm mb-1">Automated 2-Hour Backups</h4>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Never lose a transaction to power outages or PC crashes. Encrypted ZIP archives are generated every 2 hours with instant 1-click ledger restore.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER CALL TO ACTION & HARDWARE COMPATIBILITY -->
+    <footer class="bg-slate-900 text-white p-6 md:p-8 border-t border-slate-800">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs text-slate-400 font-mono">100% Plug-and-Play Hardware Ready</span>
+          </div>
+          <div class="text-xs text-slate-300">
+            Works with standard 58mm/80mm ESC/POS thermal printers, USB handheld barcode guns, cash drawers, and customer displays.
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center gap-3">
+          <div class="text-center sm:text-right">
+            <div class="text-xs text-slate-400">Direct Inquiries &amp; Deployment:</div>
+            <div class="text-sm font-bold text-white font-mono">+233 24 834 3007 &bull; www.frivans@gmail.com</div>
+          </div>
+          <a href="tel:+233248343007" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-2 transition shrink-0">
+            <i class="fa-solid fa-phone"></i> Contact Sales
+          </a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Interactive Script for Drop / Click / Paste Screenshot Support -->
+  <script>
+    let activeZone = 'desktop';
+
+    function setupDropZone(zoneId, inputId, imgId, phId, storageKey) {
+      const zone = document.getElementById(zoneId);
+      const input = document.getElementById(inputId);
+      const img = document.getElementById(imgId);
+      const ph = document.getElementById(phId);
+
+      // Restore from localStorage if previously dropped
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved) {
+          img.src = saved;
+          img.classList.remove('hidden');
+          ph.classList.add('hidden');
+        }
+      } catch (e) {}
+
+      zone.addEventListener('click', () => {
+        activeZone = zoneId.replace('-zone', '');
+        input.click();
+      });
+
+      input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) applyImage(file, img, ph, storageKey);
+      });
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('ring-2', 'ring-blue-500');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('ring-2', 'ring-blue-500');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('ring-2', 'ring-blue-500');
+        activeZone = zoneId.replace('-zone', '');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          applyImage(e.dataTransfer.files[0], img, ph, storageKey);
+        }
+      });
+    }
+
+    function applyImage(file, imgEl, phEl, storageKey) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        imgEl.src = ev.target.result;
+        imgEl.classList.remove('hidden');
+        phEl.classList.add('hidden');
+        try {
+          localStorage.setItem(storageKey, ev.target.result);
+        } catch(e) {}
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Global Clipboard Paste (Ctrl+V) handler
+    window.addEventListener('paste', (e) => {
+      const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+      for (let item of items) {
+        if (item.kind === 'file' && item.type.startsWith('image/')) {
+          const blob = item.getAsFile();
+          const target = activeZone || 'desktop';
+          const img = document.getElementById(`${target}-img`);
+          const ph = document.getElementById(`${target}-placeholder`);
+          applyImage(blob, img, ph, `sf_flyer_${target}`);
+          break;
+        }
+      }
+    });
+
+    function clearAllScreenshots() {
+      ['desktop', 'tablet', 'mobile'].forEach(key => {
+        const img = document.getElementById(`${key}-img`);
+        const ph = document.getElementById(`${key}-placeholder`);
+        img.src = '';
+        img.classList.add('hidden');
+        ph.classList.remove('hidden');
+        try {
+          localStorage.removeItem(`sf_flyer_${key}`);
+        } catch(e) {}
+      });
+    }
+
+    // Initialize all 3 drop zones
+    setupDropZone('desktop-zone', 'desktop-input', 'desktop-img', 'desktop-placeholder', 'sf_flyer_desktop');
+    setupDropZone('tablet-zone', 'tablet-input', 'tablet-img', 'tablet-placeholder', 'sf_flyer_tablet');
+    setupDropZone('mobile-zone', 'mobile-input', 'mobile-img', 'mobile-placeholder', 'sf_flyer_mobile');
+  </script>
+
+</body>
+</html>

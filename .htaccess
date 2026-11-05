@@ -1,0 +1,10 @@
+# docs/ is the manual, the deployment note and the sales flyer. They are read from disk
+# by the shop owner, not fetched by the till, and the deployment note describes the
+# licence and network layout of the product.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+</IfModule>
